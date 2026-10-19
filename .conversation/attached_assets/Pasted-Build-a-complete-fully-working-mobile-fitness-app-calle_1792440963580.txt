@@ -1,0 +1,95 @@
+Build a complete, fully working mobile fitness app called "FitForge" with Expo + React Native + expo-router (TypeScript) for Android and iOS. Dark theme, portrait only. Every screen and button below must be functional with real saved data, not mock data.
+
+## Design system
+- Background #0c0f0d, cards #161b19 with a 1px subtle border (#232a26) and large radius (24-28), text near-white, muted text #9aa39e.
+- Primary lime #b8f23a (buttons, active tab, rings, section eyebrows). Group colors: Chest lime #b8f23a, Back #67d7ff, Shoulders #ffbd66, Biceps #e78aff, Triceps #ff7e93, Legs #82f5b1, Glutes #ff8d61, Calves #52a9ff, Core #f5e56b, Forearms #d7a77a, Neck #c9f878, Jaw & Face #d3a3ff.
+- Font Inter (bold for titles). Small uppercase lime "eyebrow" text above every screen title (e.g. "TRAIN SMARTER").
+- Bottom tab bar: Home, Workouts, Progress, Nutrition, Profile (active tab in lime). A banner ad sits just above the tab bar.
+
+## 1. First launch: Onboarding (shown once, then never again)
+Intro text: "Tell us a little about yourself so FitForge can make every session count."
+Steps (progress dots, Next/Back):
+1. Your first name.
+2. Age, sex, height (cm) and current body weight (kg).
+3. Goal: Build Muscle, Lose Fat, General Fitness, Strength.
+4. Experience: Less than 1 year, 1-3 years, 3+ years (this sets level Beginner / Intermediate / Advanced).
+5. Training days per week (1-7) and tap-to-select which weekdays are TRAINING days; the remaining days are marked REST days.
+6. Summary screen that automatically calculates and shows: daily calories, protein, carbs, fats, and water target, with a "Let's go" button.
+Calculation: BMR (Mifflin-St Jeor) x activity factor from training days, then adjust by goal (+300 kcal for Build Muscle, -400 for Lose Fat). Protein about 2.2 g/kg, fats about 0.9 g/kg, carbs = remaining calories. Everything is editable later in Profile and recalculates.
+Save everything locally and show the Home screen.
+
+## 2. Home tab
+- Header: today's date in lime uppercase (e.g. "TUESDAY, SEPTEMBER 29"), "Good morning/afternoon/evening, {name}" by time of day, avatar square with the name's first letter (opens Profile).
+- Card "YOUR NEXT SESSION": session title (e.g. "Upper body power"), "6 exercises · 48 min · Build Muscle", a lime circle with a bolt and "READY", and a lime "Start workout" button. The plan follows the user's chosen training days and rotates splits (Upper body, Lower body, Push, Pull, etc.). On rest days show "Rest day" with recovery tips instead.
+- "Your week" with three stat cards: sessions this week, training time (hours), % of weekly plan complete (all computed from real logs).
+- "Explore by muscle" horizontal chips with a colored dot (Chest, Back, Shoulders, Biceps, ...) and a "See all" link to the Workouts tab.
+- "Today's focus - 3 moves": numbered list (01, 02, 03) with exercise name, "Chest · 4 sets × 6-10 reps" and a chevron that opens the exercise detail.
+
+## 3. Workouts tab
+- Eyebrow "TRAIN SMARTER", title "Workouts", lime play button (top right) that starts today's workout. Subtitle: "Choose a muscle to see every exercise, variation, and setup in one place."
+- Search bar "Search exercises" with a filter icon; it searches all exercises across all groups.
+- "Muscle groups": 2-column grid of cards (icon in a tinted square, name, subtitle, "N moves" in the group's color, arrow):
+  Chest - Upper, mid & lower - 20 moves
+  Back - Lats, traps & lower back - 18 moves
+  Shoulders - Delts & stability - 14 moves
+  Biceps - Curls & pulls - 13 moves
+  Triceps - Pressing power - 13 moves
+  Legs - Quads & hamstrings - 16 moves
+  Glutes - Power & shape - 12 moves
+  Calves - Lower-leg strength - 9 moves
+  Core - Abs & obliques - 15 moves
+  Forearms - Grip & wrist control - 10 moves
+  Neck - Mobility & isometrics - 8 moves
+  Jaw & Face - Gentle facial work - 7 moves
+  (155 exercises in total. Use these exact counts. Increase them only if I ask.)
+- The exercise list must be COMPLETE and keep the same exercises, names and order as the original app for every group. The counts above are fixed; each card's number must equal the real number of exercises in that group.
+
+## 4. Muscle group screen (e.g. Chest)
+- Eyebrow "EXERCISE LIBRARY", title = group name, grid icon button (back to groups).
+- Highlighted card: "Chest library - Upper, mid & lower · 20 exercises".
+- Search bar with filter icon, plus horizontal filter chips by equipment: All, Barbell, Dumbbells, Cable, Machine, Bodyweight, Bands. Chips filter the list live.
+- "20 exercises to explore": cards with an icon + small play badge, exercise name, "Mid chest · Barbell", "4 sets × 6-10 · Intermediate" (lime sets/reps, gray level), and a bookmark button (saves to favorites; the Profile "Saved" counter updates).
+- Chest examples: Barbell Bench Press (Mid chest · Barbell, 4×6-10, Intermediate), Incline Dumbbell Press (Upper chest · Dumbbells, 4×8-12, Intermediate), Cable Chest Fly (Inner chest · Cable, 3×12-15, Beginner), and so on for all 20.
+- Every muscle group has all its exercises listed here: for example Biceps includes every curl and pull variation (barbell, dumbbell, cable, preacher, hammer, band, and so on), each with its own description.
+
+## 5. Exercise detail screen (the most important screen)
+- TOP: a short looped demo video (about 5 seconds, muted, auto-playing, looping) showing exactly how to perform THAT exercise, with the caption "Looped visual cue - slow and controlled". Every exercise in the app has its own video file. Use expo-video, local or CDN-hosted H.264 mp4 files under about 500 KB each, with a poster image and a graceful fallback if the video fails to load.
+- Eyebrow breadcrumb: "CHEST · MID CHEST". Big exercise title. Description: "A focused intermediate movement for your chest session. Use the cues below to make every rep deliberate."
+- Three stat cards: sets (4), reps (6-10), rest (90 sec).
+- Card "How to do it": numbered steps, specific to the exercise.
+- Card "Common mistakes": red X list, specific to the exercise (e.g. Bouncing the weight, Flaring the elbows, Losing control on the way down).
+- Card "Safety note": specific to the exercise (e.g. "Use a spotter for challenging barbell sets and stop if you feel sharp shoulder pain.").
+- Bottom actions: "Add to today's workout" and "Start this exercise", a bookmark toggle in the header, and a back button.
+- Neck and Jaw & Face exercises must show the note "Gentle facial exercises are not a treatment." where relevant.
+
+## 6. Active workout
+- Starts from "Start workout" on Home, the play button in Workouts, or an exercise. Shows the exercise list with the current exercise, a looped video, sets table (reps, weight, done checkbox), rest timer (auto-starts after each set using the exercise's rest time, with +15s/skip), and the hint "Take the full rest time between sets. Quality reps are the goal."
+- Finish saves the session (date, duration, exercises, sets, weights) and updates Home, Progress, streak and Profile counters. Show a short celebration.
+
+## 7. Progress tab
+- Eyebrow "KEEP SHOWING UP", title "Your progress", subtitle "Small wins stack into serious strength."
+- Card "This month": exercises completed + a lime ring with % of monthly goal.
+- "Weekly consistency": 7 bars (M T W T F S S) based on real training time per day, today's bar in lime.
+- "Body measurements": rows for Body weight (kg), Chest, Arms, Waist (cm), each showing the latest value, the change since the previous entry (green/red), and a chevron that opens a screen to log a new value and see a line chart of the history.
+
+## 8. Nutrition tab
+- Eyebrow "FUEL THE WORK", title "Nutrition", subtitle "Simple targets for stronger sessions."
+- "Daily calories" card: consumed vs target (e.g. 2,380 of 2,650 kcal) with a lime % ring.
+- Three macro cards with colored dots: Protein (lime), Carbs (blue), Fats (orange), each "142g of 180g". Targets come from onboarding.
+- "Today's meals" + "See plan": Breakfast, Lunch, Snack, Dinner cards with a proper icon for EACH meal type (coffee cup, bowl, fruit, dinner), meal name, kcal and a chevron. Tapping a meal opens a screen to edit the meal and add foods (name, kcal, protein, carbs, fats). Consumed calories and macros are the sum of logged meals. Provide a default meal plan based on the user's targets (e.g. Greek yogurt, oats & berries; Chicken rice power bowl; Protein shake & banana; Salmon, potatoes & greens).
+- "Hydration" card: "5 of 8 glasses today" with a "+ Add" button (and undo). Resets daily.
+
+## 9. Profile tab
+- Large avatar square with the first letter, name, "Build Muscle · Beginner".
+- Three stat cards: Workouts (total), Streak (days in a row), Saved (bookmarked exercises).
+- "Preferences": Notifications toggle ("Workout reminders & updates", schedules local notifications on the user's training days using expo-notifications), Dark mode toggle ("Easy on the eyes at night"), Training preferences ("4 days per week · Less than 1 year", opens an edit screen for goal, level, training/rest days, weight, height; changing them recalculates calories and macros).
+- "Account": Help & safety ("Exercise guidance and support") and About FitForge ("Version 1.0.0"). Also include Language, Export data, and Reset all data (with confirmation).
+
+## Data, ads and quality
+- Persist everything locally (AsyncStorage or SQLite) with one versioned store. Offline-first.
+- Banner ads (react-native-google-mobile-ads) above the tab bar, an interstitial after finishing a workout, and a rewarded ad optional. Use Google TEST ad unit IDs while developing and keep the real IDs in one config file.
+- Do not hardcode sample stats (24 workouts, 8-day streak, 78.4 kg, etc.). Start from real zeros with friendly empty states.
+- Fix known issues: meal icons for Lunch and Snack must not show a "?" placeholder, and total calories must equal the sum of the meals.
+- Accessible touch targets, safe-area handling, keyboard-aware inputs, loading and error states.
+
+Deliver in phases: (1) project setup, theme, navigation, onboarding and data layer; (2) Workouts, muscle groups and the exercise detail with video; (3) active workout, Progress and Nutrition; (4) Profile, notifications, ads and polish. After each phase, tell me what works and what is next.
