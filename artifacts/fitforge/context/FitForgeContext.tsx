@@ -10,6 +10,7 @@ import React, {
   type ReactNode,
 } from 'react';
 import { EMPTY_DATA, type FitForgeData, type UserProfile } from '@/lib/fitness';
+import { fitForgeDb } from '@/lib/db-service';
 
 const STORAGE_KEY = '@fitforge/local-store';
 const STORE_VERSION = 1;
@@ -37,6 +38,8 @@ export function FitForgeProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
+  const userIdRef = useRef<string | null>(null);
+  const dbAvailableRef = useRef<boolean>(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -44,6 +47,26 @@ export function FitForgeProvider({ children }: { children: ReactNode }) {
       setIsReady(false);
       setLoadError(null);
       try {
+        if (!userIdRef.current) {
+          userIdRef.current = `user-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+        }
+
+        // Try database first
+        if (dbAvailableRef.current) {
+          try {
+            const loaded = await fitForgeDb.loadData(userIdRef.current);
+            if (!cancelled) {
+              dataRef.current = loaded;
+              setData(loaded);
+              setIsReady(true);
+              return;
+            }
+          } catch {
+            dbAvailableRef.current = false;
+          }
+        }
+
+        // Fallback to AsyncStorage
         const serialized = await AsyncStorage.getItem(STORAGE_KEY);
         let nextData = EMPTY_DATA;
         if (serialized) {
@@ -63,7 +86,7 @@ export function FitForgeProvider({ children }: { children: ReactNode }) {
           setLoadError(
             error instanceof Error
               ? error.message
-              : 'FitForge could not read your saved data.',
+              : 'FitForge could not load your data.',
           );
           setIsReady(true);
         }
@@ -80,14 +103,43 @@ export function FitForgeProvider({ children }: { children: ReactNode }) {
   const updateData = useCallback(
     async (update: (current: FitForgeData) => FitForgeData) => {
       const nextData = update(dataRef.current);
+      dataRef.current = nextData;
+      setData(nextData);
+
+      const userId = userIdRef.current;
+      if (!userId) return;
+
+      // Try database first
+      if (dbAvailableRef.current) {
+        try {
+          if (nextData.profile) {
+            await fitForgeDb.saveProfile(userId, nextData.profile);
+          }
+          for (const session of nextData.sessions) {
+            await fitForgeDb.saveWorkoutSession(userId, session);
+          }
+          for (const meal of nextData.meals) {
+            await fitForgeDb.saveMealLog(userId, meal);
+          }
+          for (const measurement of nextData.measurements) {
+            await fitForgeDb.saveMeasurement(userId, measurement);
+          }
+          if (nextData.hydration.date) {
+            await fitForgeDb.saveHydration(userId, nextData.hydration.date, nextData.hydration.glasses);
+          }
+          return;
+        } catch {
+          dbAvailableRef.current = false;
+        }
+      }
+
+      // Fallback to AsyncStorage
       const envelope: StoreEnvelope = { version: STORE_VERSION, data: nextData };
       try {
         await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(envelope));
       } catch {
         throw new Error('FitForge could not save your changes. Please try again.');
       }
-      dataRef.current = nextData;
-      setData(nextData);
     },
     [],
   );
@@ -100,6 +152,22 @@ export function FitForgeProvider({ children }: { children: ReactNode }) {
   );
 
   const resetData = useCallback(async () => {
+    const userId = userIdRef.current;
+    if (!userId) return;
+
+    // Try database first
+    if (dbAvailableRef.current) {
+      try {
+        await fitForgeDb.resetAllData(userId);
+        dataRef.current = EMPTY_DATA;
+        setData(EMPTY_DATA);
+        return;
+      } catch {
+        dbAvailableRef.current = false;
+      }
+    }
+
+    // Fallback to AsyncStorage
     try {
       await AsyncStorage.removeItem(STORAGE_KEY);
       dataRef.current = EMPTY_DATA;

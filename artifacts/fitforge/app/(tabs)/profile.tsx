@@ -211,7 +211,10 @@ export default function ProfileScreen() {
             title="About FitForge"
             detail="Version 1.0.0"
             icon="info"
-            onPress={() => Alert.alert('FitForge', 'Version 1.0.0 · Built for steady, thoughtful training.')}
+            onPress={() => Alert.alert(
+              'FitForge',
+              'Version 1.0.0 · Built for steady, thoughtful training.\n\nImage credits: Exercise images from the free-exercise-db dataset by yuhonas, released into the public domain (Unlicense).',
+            )}
           />
           <View style={{ height: 1, backgroundColor: colors.border }} />
           <PreferenceRow

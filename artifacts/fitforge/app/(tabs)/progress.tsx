@@ -20,7 +20,8 @@ function ProgressRing({ percent }: { percent: number }) {
           cx="52" cy="52" r={radius} stroke={colors.primary} strokeWidth={8}
           strokeDasharray={`${circumference} ${circumference}`}
           strokeDashoffset={circumference * (1 - percent / 100)}
-          strokeLinecap="round" fill="none" rotation="-90" origin="52, 52"
+          strokeLinecap="round" fill="none"
+          transform="rotate(-90, 52, 52)"
         />
       </Svg>
       <Text style={{ color: colors.foreground, fontFamily: 'Inter_700Bold', fontSize: 20 }}>{percent}%</Text>

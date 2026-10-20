@@ -27,7 +27,8 @@ function CalorieRing({ percent }: { percent: number }) {
           cx="48" cy="48" r={radius} stroke={colors.primary} strokeWidth={7}
           strokeDasharray={`${circumference} ${circumference}`}
           strokeDashoffset={circumference * (1 - percent / 100)}
-          strokeLinecap="round" fill="none" rotation="-90" origin="48, 48"
+          strokeLinecap="round" fill="none"
+          transform="rotate(-90, 48, 48)"
         />
       </Svg>
       <Text style={{ color: colors.foreground, fontFamily: 'Inter_700Bold', fontSize: 18 }}>{percent}%</Text>

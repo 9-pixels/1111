@@ -3,9 +3,12 @@ import { Pressable, Text, View } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { ActionButton, Body, Eyebrow, Page, Panel, Title } from '@/components/FitForgeUI';
+import { ExerciseMedia } from '@/components/ExerciseMedia';
 import { useFitForge } from '@/context/FitForgeContext';
 import { useColors } from '@/hooks/useColors';
 import { getExerciseById, getGroupById } from '@/lib/exercises';
+import { exerciseImageMap } from '@/lib/exercise-image-map';
+import { exerciseImageRegistry } from '@/lib/exercise-image-registry';
 
 function StatTile({ label, value }: { label: string; value: string }) {
   const colors = useColors();
@@ -45,6 +48,7 @@ export default function ExerciseDetailScreen() {
         : [...current.favoriteExerciseIds, exercise.id],
     }));
   };
+
   const addToQueue = async () => {
     try {
       await updateData((current) => ({
@@ -53,11 +57,15 @@ export default function ExerciseDetailScreen() {
           ? current.workoutQueue
           : [...current.workoutQueue, exercise.id],
       }));
-      setNotice('Added to today’s workout.');
+      setNotice('Added to today\'s workout.');
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'Could not add this exercise.');
     }
   };
+
+  // Get media for this exercise
+  const media = exerciseImageMap[exercise.id];
+  const hasMedia = !!media;
 
   return (
     <Page contentStyle={{ gap: 17 }}>
@@ -70,18 +78,13 @@ export default function ExerciseDetailScreen() {
         </Pressable>
       </View>
 
-      <Panel style={{ minHeight: 186, justifyContent: 'center', alignItems: 'center', padding: 22, gap: 13 }}>
-        <View style={{ width: 68, height: 68, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: `${group?.color ?? colors.primary}22` }}>
-          <Feather name="play" size={28} color={group?.color ?? colors.primary} />
-        </View>
-        <Text style={{ color: colors.foreground, fontFamily: 'Inter_700Bold', fontSize: 16, textAlign: 'center' }}>{exercise.name}</Text>
-        <Text style={{ color: colors.mutedForeground, fontFamily: 'Inter_400Regular', fontSize: 12, textAlign: 'center' }}>
-          Exercise-specific video demo not supplied
-        </Text>
-      </Panel>
-      <Text style={{ color: colors.mutedForeground, fontFamily: 'Inter_500Medium', fontSize: 11, textAlign: 'center' }}>
-        Follow the written cues below · slow and controlled
-      </Text>
+      {/* Media Component - cross-fade image loop, video, or placeholder */}
+      <ExerciseMedia
+        exerciseId={exercise.id}
+        exerciseName={exercise.name}
+        accentColor={group?.color ?? colors.primary}
+        hasMedia={hasMedia}
+      />
 
       <View style={{ gap: 8 }}>
         <Eyebrow>{exercise.group.toUpperCase()} · {exercise.focus.toUpperCase()}</Eyebrow>
@@ -126,7 +129,7 @@ export default function ExerciseDetailScreen() {
       </Panel>
 
       {notice ? <Text accessibilityRole="alert" style={{ color: colors.primary, fontFamily: 'Inter_600SemiBold', fontSize: 13 }}>{notice}</Text> : null}
-      <ActionButton onPress={addToQueue} testID="add-to-today-workout">Add to today’s workout</ActionButton>
+      <ActionButton onPress={addToQueue} testID="add-to-today-workout">Add to today's workout</ActionButton>
       <ActionButton secondary onPress={() => router.push({ pathname: '/active-workout', params: { exerciseId: exercise.id } })} testID="start-this-exercise">Start this exercise</ActionButton>
     </Page>
   );

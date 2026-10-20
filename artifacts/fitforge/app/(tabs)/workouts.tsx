@@ -95,7 +95,7 @@ export default function WorkoutsScreen() {
             <ExerciseCard
               key={exercise.id}
               exercise={exercise}
-              onPress={() => router.push({ pathname: '/exercise/[id]', params: { id: exercise.id } })}
+              onPress={() => router.push(`/exercise/${exercise.id}`)}
             />
           )) : (
             <Panel><Body>No exercises match “{query}”. Try another name or muscle group.</Body></Panel>

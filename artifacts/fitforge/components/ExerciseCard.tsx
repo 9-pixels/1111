@@ -19,7 +19,7 @@ export default function ExerciseCard({
   const group = getGroupById(exercise.group.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
   return (
     <Pressable
-      accessibilityRole="button"
+      accessibilityLabel={exercise.name}
       onPress={onPress}
       testID={`exercise-card-${exercise.id}`}
       style={({ pressed }) => ({
